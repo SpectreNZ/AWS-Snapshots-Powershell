@@ -4,7 +4,7 @@ function logsetup {
 		{ New-Eventlog -LogName "Application" -Source "AWS PowerShell Utilities" }
 }
 
-#Sets the access credentials of the Amazon account and stores as Snapshots profile. This is using the Snasphots user.
+#Sets the access credentials of the Amazon account and stores as Snapshots profile. Reccomended to use a specific IAM account for this.
 Set-AWSCredentials -AccessKey XXXXXXXXXXXXXX -SecretKey XXXXXXXXXXXXXXX -StoreAs Snapshots
 
 #Sets the profile as Snapshots to ensure it runs
