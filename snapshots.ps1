@@ -4,8 +4,7 @@ function logsetup {
 		{ New-Eventlog -LogName "Application" -Source "AWS PowerShell Utilities" }
 }
 
-#Sets the access credentials of the Amazon account and stores as Snapshots profile.
-#Reccomended to use a specific IAM account for this.
+#Sets the access credentials of the Amazon account and stores as Snapshots profile. Reccomended to use a specific IAM account for this.
 Set-AWSCredentials -AccessKey XXXXXXXXXXXXXX -SecretKey XXXXXXXXXXXXXXX -StoreAs Snapshots
 
 #Sets the profile as Snapshots to ensure it runs
@@ -15,7 +14,7 @@ Set-AWSCredentials -ProfileName Snapshots
 Set-DefaultAWSRegion -Region XXXXXXXX
 
 #Add backupDate parameter to add time to snapshot description
-$backupDate = (Get-Date).ToString('yyyy-MM-dd_-_mm-ss')
+$backupDate = Get-Date -f 'F'
 
 #Execute snapshots
 try
@@ -26,6 +25,7 @@ try
 	New-ec2tag -ResourceId $snapshotSERVERNAME.SnapshotId -Tag @{Key="Name"; Value="SERVERNAME"} -ErrorAction Stop
 	#Add tag of Automatic to Snapshot for retention
 	New-ec2tag -ResourceId $snapshotSERVERNAME.SnapshotId -Tag @{Key="Automatic"; Value="Yes"} -ErrorAction Stop
+
 	#Write success to Event log
 	write-eventlog -Logname "Application" -EntryType "Information" -EventID 1 -Source "AWS PowerShell Utilities" -Message "SERVERNAME AWS Snapshot Successful"
 }
@@ -33,18 +33,15 @@ catch
 {
 	#Catch the error
 	$ErrorMessage = $_.Exception.Message
-	#Write Failure to Event log
-	write-eventlog -Logname "Application" -EntryType "Information" -EventID 0 -Source "AWS PowerShell Utilities" -Message "SERVERNAME AWS Snapshot Failure - Please Investigate: $FailedItem $ErrorMessage"
-}
-catch
-{
+
 	#Catch the error
-   	$FailedItem = $_.Exception.ItemName
+    $FailedItem = $_.Exception.ItemName
+
 	#Write Failure to Event log
 	write-eventlog -Logname "Application" -EntryType "Information" -EventID 0 -Source "AWS PowerShell Utilities" -Message "SERVERNAME AWS Snapshot Failure - Please Investigate: $FailedItem $ErrorMessage"
 }
 
-#Rinse and repeat for next Cloud
+#Rinse and repeat for next server
 #Copy and paste from Try and Catch and change Volume ID's ect to snapshot additional volumes
 
 
